@@ -103,7 +103,7 @@ import numpy as np
 # ===================================================================
 
 # Control parameters
-TESTING = True              # If True, runs in testing mode (faster, less data), for Galaxies and Halos
+TESTING = False              # If True, runs in testing mode (faster, less data), for Galaxies and Halos
 VERBOSE = True               # If True, prints detailed information during execution
 DO_PLOTS = True              # If True, generates plots for the results
 
@@ -115,20 +115,21 @@ Z_SNAP = 1.321               # Snapshot redshift
 
 # Simulation parameters
 BOXSIZE = 1000.0             # Box size in Mpc/h
-FLUX_MIN = 1.325e-16       # Minimum Halpha flux for ELGs [erg/s/cm^2]
+#FLUX_MIN = np.log10(1.325e-16)       # Minimum Halpha flux for ELGs [erg/s/cm^2]
+FLUX_MIN = -16.5
 DO_FLUX_CUT = True           # If True, applies a flux cut to the galaxy sample
 
 # Input and output file paths
-BASE_DIR = "/home/tfm-violeta/Victor/HODfit2sim_victorrojalo"        # Base directory for the project
+BASE_DIR = "/home/tfm-violeta/Victor/HODfit2sim_victorrojalo/SAGE"        # Base directory for the project
 #BASE_DIR = "/home2/guillermo/HODfit2sim"        # Base directory for the project
-RESULTS_DIR = os.path.join("/home/tfm-violeta/Victor/HODfit2sim_victorrojalo", "output")    # Directory for results  
-DATA_DIR = os.path.join("/home2/guillermo/TFM_JOAQUIN", "data")        # Directory for input data files
+RESULTS_DIR = os.path.join(BASE_DIR, "output")    # Directory for results  
+DATA_DIR = os.path.join(BASE_DIR, "data/example")        # Directory for input data files
 os.makedirs(RESULTS_DIR, exist_ok=True)          # Create results directory if it doesn't exist
 #os.makedirs(DATA_DIR, exist_ok=True)             # Create data directory if it doesn't exist
 
 # Input files
-GALAXY_FILE = os.path.join(DATA_DIR, "UNITSIM1_model_z1.321_ELGs.h5")        # Input galaxy file
-HALO_FILE = os.path.join(DATA_DIR, "Halos_tree_DOC_PID_Vmax_all_Mass.txt")   # Input halo file
+GALAXY_FILE = os.path.join(DATA_DIR, "UNITSIM1_model_z1.321_ELGs_100000.h5")        # Input galaxy file
+HALO_FILE = os.path.join(DATA_DIR, "Halos_tree_DOC_PID_Vmax_all_Mass_100000.txt")   # Input halo file
 #print (HALO_FILE);exit()
 # Input file formats
 INPUT_GALAXY_FORMAT = "h5"                       # Input Halaxy file format ('h5', 'txt')
@@ -136,16 +137,16 @@ INPUT_HALO_FORMAT = "txt"                        # Input Halo file format ('h5',
 
 # Galaxy file keys
 if INPUT_GALAXY_FORMAT == "h5":
-    GALAXY_MAIN_ID_KEY = "MainHaloID"            # Key for main halo ID 
-    GALAXY_HOST_ID_KEY = "HostHaloID"            # Key for host halo ID 
-    GALAXY_MAIN_MASS_KEY = "MainMhalo"           # Key for main halo mass
-    GALAXY_XPOS_KEY = "Xpos"                     # Key for x position 
-    GALAXY_YPOS_KEY = "Ypos"                     # Key for y position 
-    GALAXY_ZPOS_KEY = "Zpos"                     # Key for z position 
-    GALAXY_XVEL_KEY = "Xvel"                     # Key for x velocity 
-    GALAXY_YVEL_KEY = "Yvel"                     # Key for y velocity
-    GALAXY_ZVEL_KEY = "Zvel"                     # Key for z velocity 
-    GALAXY_LOG_HALPHA_KEY = "logFHalpha_att"     # Key for Halpha flux 
+    GALAXY_MAIN_ID_KEY = "data/MainHaloID"            # Key for main halo ID 
+    GALAXY_HOST_ID_KEY = "data/HostHaloID"            # Key for host halo ID 
+    GALAXY_MAIN_MASS_KEY = "data/MainMhalo"           # Key for main halo mass
+    GALAXY_XPOS_KEY = "data/Xpos"                     # Key for x position 
+    GALAXY_YPOS_KEY = "data/Ypos"                     # Key for y position 
+    GALAXY_ZPOS_KEY = "data/Zpos"                     # Key for z position 
+    GALAXY_XVEL_KEY = "data/Xvel"                     # Key for x velocity 
+    GALAXY_YVEL_KEY = "data/Yvel"                     # Key for y velocity
+    GALAXY_ZVEL_KEY = "data/Zvel"                     # Key for z velocity 
+    GALAXY_LOG_HALPHA_KEY = "data/logFHalpha_att"     # Key for Halpha flux 
 
 if INPUT_GALAXY_FORMAT == "txt":
     GALAXY_MAIN_ID_KEY = 1                       # Key for main halo ID
@@ -307,7 +308,7 @@ def main():
             SHUFFLED_GALAXY_FILE = os.path.join(BASE_DIR, "filtered_ELGs_shuffled.h5")    
         shuffle_galaxy_catalog_binned(galaxy_file=FILTERED_GALAXIES, halo_shuffled_file=SHUFFLED_HALO_FILE, output_file=SHUFFLED_GALAXY_FILE,
                                       boxsize=BOXSIZE, bins=N_BINS_SHUFFLING, boundary_correction=boundary_correction,
-                                      verbose=VERBOSE)
+                                      verbose=VERBOSE, galaxy_host_field=GALAXY_HOST_ID_KEY, galaxy_main_id_field=GALAXY_MAIN_ID_KEY)
 
     # =========== Calculate 2PCF. Real Space ============
 
@@ -444,7 +445,7 @@ def main():
                                                    M_max=M_MAX_CONFORMITY, N_bins=N_BINS_CONFORMITY,
                                                    galaxy_format=INPUT_GALAXY_FORMAT, halo_format=INPUT_HALO_FORMAT,
                                                    output_file=CONFORMITY_SHUFFLED, halo_pid=HALO_PID_KEY, halo_mass=HALO_MASS_KEY,
-                                                   verbose=VERBOSE, gal_is_central="is_central",
+                                                   verbose=VERBOSE, gal_is_central="data/is_central", gal_host_id=GALAXY_HOST_ID_KEY, 
                                                    gal_main_id=GALAXY_MAIN_ID_KEY, gal_main_mass=GALAXY_MAIN_MASS_KEY, testing=TESTING)
 
         if DO_PLOTS:
